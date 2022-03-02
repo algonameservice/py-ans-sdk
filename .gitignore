@@ -1,0 +1,8 @@
+anssdk.egg-info/
+build/
+dist/
+anssdk/__pycache__
+anssdk/tests/__pycache__
+anssdk/test.py
+anssdk/setup_client.py
+anssdk/tests/api_key.txt
