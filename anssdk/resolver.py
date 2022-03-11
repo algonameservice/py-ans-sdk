@@ -10,9 +10,10 @@ from anssdk import constants, dot_algo_name_record
 
 class ans_resolver:
     
-    def __init__(self, client, indexer):
+    def __init__(self, client, indexer=None):
         self.algod_client = client
-        self.algod_indexer = indexer
+        if(indexer is not None):
+            self.algod_indexer = indexer
 
     def compile_program(self, algod_client, source_code) :
         compile_response = algod_client.compile(source_code.decode('utf-8'))
@@ -28,19 +29,23 @@ class ans_resolver:
     def resolve_name(self, name):
         
         name = name.split('.algo')[0]
-        
         reg_app_id = constants.APP_ID
-        
+        account_info = self.algod_client.account_info(address=self.prep_name_record_logic_sig(name, reg_app_id).address())
+        if(len(account_info["apps-local-state"]) == 0):
+            return({
+                'found': False
+            })
         try:
-            for apps_local_data in self.algod_indexer.account_info(address=self.prep_name_record_logic_sig(name, reg_app_id).address())['account']['apps-local-state']:
+            for apps_local_data in account_info['apps-local-state']:
                 owner = None
                 expiry = None
-                if(apps_local_data['id']==reg_app_id and not apps_local_data['deleted']):
+                if(apps_local_data['id']==reg_app_id):
                     for key_value in apps_local_data['key-value']:
                         if(base64.b64decode(key_value['key']).decode()=="expiry"):
                             expiry = key_value['value']['uint']
                         elif(base64.b64decode(key_value['key']).decode()=="owner"):
                             owner = encoding.encode_address(base64.b64decode(key_value['value']['bytes']))
+                                            
                 if(owner!=None and expiry!=None and expiry>int(time.time())):
                     return ({
                         'found': True,
@@ -48,15 +53,29 @@ class ans_resolver:
                         'expiry': expiry
                     })
                 else:
-                    return None
-        except Exception as err:
+                    
+                    return ({
+                        'found': False
+                    })
+
+        except:
+            
             return ({
-                'found': False,
-                'error': err
+                'found': False
             })         
 
     def get_names_owned_by_address(self,address):
         is_valid_address = encoding.is_valid_address(address)
+        indexer = None
+        try:
+            if(self.algod_indexer is not None):
+                indexer = self.algod_indexer
+        except Exception as err:
+            return({
+                'err': 'Indexer is not instantiated'
+            })
+            return
+
         if(is_valid_address is False):
             return(
                 {
@@ -64,7 +83,7 @@ class ans_resolver:
                 }
             )
         else:
-            indexer = self.algod_indexer
+            
             next_token = ''
             txn_length = 1
             txns = []

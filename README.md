@@ -13,8 +13,11 @@ import anssdk.resolver as resolver
 algod_client = "" # set up your algodV2 client
 algod_indexer = "" # set up your algod indexer
 
+#indexer is not required if the intention is to only resolve .algo names, but it is required to view the names owned by an algorand wallet address
 #indexer and client must point to mainnet
 
+resolver_obj = resolver.ans_resolver(client)
+(OR)
 resolver_obj = resolver.ans_resolver(client, indexer)
 ```
 
