@@ -17,8 +17,8 @@ from algosdk import logic
 from pyteal import *
 
 import sys
-from anssdk import constants
 sys.path.append('../')
+from anssdk import constants
 
 from anssdk.dot_algo_name_record import ValidateRecord
 

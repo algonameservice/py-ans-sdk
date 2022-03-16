@@ -12,7 +12,11 @@ furnished to do so, subject to the following conditions:
 
 import unittest
 import ans_helper as anshelper
-from anssdk import constants
+
+
+import sys
+sys.path.append('../')
+from anssdk import constants, transactions
 
 from anssdk.resolver import ans_resolver
 #from anssdk import transactions
