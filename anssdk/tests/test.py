@@ -19,7 +19,6 @@ sys.path.append('../')
 from anssdk import constants, transactions
 
 from anssdk.resolver import ans_resolver
-#from anssdk import transactions
 
 unittest.TestLoader.sortTestMethodsUsing = None
 
@@ -31,7 +30,7 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
         cls.algod_indexer = anshelper.SetupIndexer()
         cls.app_index = constants.APP_ID
         cls.resolver_obj = ans_resolver(cls.algod_client, cls.algod_indexer)
-        #cls.transactions_obj = transactions.Transactions(cls.algod_client)
+        cls.transactions_obj = transactions.Transactions(cls.algod_client)
 
 
     def test_name_resolution(self):
@@ -39,23 +38,45 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
         account_info = self.resolver_obj.resolve_name('rand')
         self.assertEqual(account_info["owner"], 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE')
 
+    def test_prep_name_reg_txns(self):
+        
+        name_reg_txns = self.transactions_obj.prepare_name_registration_transactions(
+            'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE',
+            'xyz01234',
+            5
+        )
+        self.assertGreaterEqual(len(name_reg_txns), 2)       
+
+    def test_prep_link_socials_txn(self):
+
+        edited_handles = {
+            'discord': 'lmedury',
+            'twitter': 'lmedury'
+        }
+
+        update_name_property_txns = self.transactions_obj.prepare_update_name_property_transactions('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', edited_handles)  
+        self.assertGreaterEqual(len(update_name_property_txns), 2)
+
+    def test_prep_name_renew_txns(self):
+
+        name_renew_txns = self.transactions_obj.prepare_name_renewal_transactions('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 2)
+        self.assertEqual(len(name_renew_txns), 2)
+
+    def test_prep_initiate_name_transfer_txn(self):
+
+        initiate_transfer_txn = self.transactions_obj.prepare_initiate_name_transfer_transaction('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 0)
+
+    def test_prep_accept_name_transfer_txns(self):
+
+        accept_transfer_txns = self.transactions_obj.prepare_accept_name_transfer_transactions('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 0)
+        self.assertEqual(len(accept_transfer_txns), 3)
+
     '''
     def test_names_owned_by_address(self):
         
         account_info = self.resolver_obj.get_names_owned_by_address('RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE')
         self.assertGreaterEqual(len(account_info), 2)
-         
-
-    def prep_name_reg_txns(self):
-        
-        name_reg_txns = self.transactions_obj.prep_name_reg_gtxn(
-            'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE',
-            'xyz01234',
-            5
-        )
-        print(name_reg_txns)
-    '''        
-
+    '''
 
 if __name__ == '__main__':
     unittest.main()

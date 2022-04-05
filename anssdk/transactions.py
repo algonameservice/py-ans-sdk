@@ -1,4 +1,5 @@
 from algosdk import encoding
+from click import edit
 from pyteal import compileTeal, Mode
 from algosdk.future.transaction import LogicSig
 from algosdk import logic
@@ -33,7 +34,9 @@ class Transactions:
         else:
             return 5000000        
 
-    def prep_name_reg_gtxn(self,sender, name, validity):
+    def prepare_name_registration_transactions(self,sender, name, validity):
+
+        name = name.split('.algo')[0]
         
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
@@ -71,32 +74,64 @@ class Transactions:
 
         return Grp_txns_unsign, lsig  
 
-    def link_socials(self, domainname, platform_name, profile, sender):
-        
-        reg_app_id = constants.APP_ID
-        algod_client = self.algod_client
-        txn_args = [
-            "update_name".encode("utf-8"),
-            platform_name.encode("utf-8"),
-            profile.encode("utf-8"),
-        ]
-        lsig = self.prep_name_record_logic_sig(domainname, reg_app_id)
-        link_social_txn_unsign = transaction.ApplicationNoOpTxn(sender, algod_client.suggested_params(), reg_app_id, txn_args, [lsig.address()])        
-        return link_social_txn_unsign
+    def prepare_update_name_property_transactions(self, domainname, sender, edited_handles={}):
 
-    def prep_renew_name_txn(self, domainname, years, sender):
+        domainname = domainname.split('.algo')[0]
         
+        gtxns = []
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
+
+        for handle in edited_handles:
+            txn_args = [
+                "update_name".encode("utf-8"),
+                handle.encode("utf-8"),
+                edited_handles[handle].encode('utf-8'),
+            ]
+            lsig = self.prep_name_record_logic_sig(domainname, reg_app_id)
+            link_social_txn_unsign = transaction.ApplicationNoOpTxn(sender, algod_client.suggested_params(), reg_app_id, txn_args, [lsig.address()])        
+            gtxns.append(link_social_txn_unsign)
+
+        return gtxns
+
+    def get_name_price(self, name):
+        #TODO: Find out max length of name, is 1 char = 1 byte?
+        assert(len(name)>=3 and len(name)<=64)
+        # Returns name price in ALGOs
+        if(len(name)==3):
+            return 150000000
+        elif(len(name)==4):
+            return 50000000
+        else:
+            return 5000000
+
+    def prepare_name_renewal_transactions(self, domainname, sender, years):
+        
+        domainname = domainname.split('.algo')[0]
+
+        Grp_txns_unsign = []
+
+        reg_app_id = constants.APP_ID
+        reg_escrow_acct = logic.get_application_address(reg_app_id)
+
+        algod_client = self.algod_client
+
+        pmnt_txn_unsign = transaction.PaymentTxn(sender, algod_client.suggested_params(), reg_escrow_acct, self.get_name_price(domainname)*years, None)
+        Grp_txns_unsign.append(pmnt_txn_unsign)
+
         txn_args = [
             "renew_name".encode("utf-8"),
             years.to_bytes(8, "big")
         ]
-        lsig = self.prep_name_record_logic_sig(domainname, reg_app_id)
-        renew_name_txn = transaction.ApplicationNoOpTxn(sender, algod_client.suggested_params(), reg_app_id, txn_args, [lsig.address()])        
-        return renew_name_txn        
 
-    def init_name_tnsfr_txn(self, domainname, sender, tnsfr_price, recipient_addr):
+        lsig = self.prep_name_record_logic_sig(domainname, reg_app_id)
+        renew_name_txn = transaction.ApplicationNoOpTxn(sender, algod_client.suggested_params(), reg_app_id, txn_args, [lsig.address()])     
+        Grp_txns_unsign.append(renew_name_txn)
+        transaction.assign_group_id(Grp_txns_unsign)
+
+        return Grp_txns_unsign        
+
+    def prepare_initiate_name_transfer_transaction(self, domainname, sender, recipient_addr, tnsfr_price):
 
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
@@ -108,7 +143,7 @@ class Transactions:
         txn_init_name_tnsfr_unsign = transaction.ApplicationNoOpTxn(sender, algod_client.suggested_params(), reg_app_id, txn_args, [lsig.address(),recipient_addr])
         return txn_init_name_tnsfr_unsign
 
-    def prep_cmplte_name_tnsfr_gtxn(self, domainname, sender, tnsfr_price, recipient_addr):
+    def prepare_accept_name_transfer_transactions(self, domainname, sender, recipient_addr, tnsfr_price):
 
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
