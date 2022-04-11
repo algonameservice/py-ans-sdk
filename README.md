@@ -65,7 +65,7 @@ else:
 
 Import 
 ```
-import anssdk.Transactions as Transactions
+import anssdk.transactions as Transactions
 ```
 Setup
 ```
