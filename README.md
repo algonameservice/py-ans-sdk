@@ -168,7 +168,7 @@ try:
     # Sign and send to network
 
 except:
-
+    pass
 ```
 
 ## Accept transfer
@@ -187,7 +187,7 @@ try:
     # Sign each and send to network
 
 except:
-
+    pass
 ```
 
 
