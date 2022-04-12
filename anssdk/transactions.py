@@ -34,7 +34,7 @@ class Transactions:
         else:
             return 5000000        
 
-    def prepare_name_registration_transactions(self,sender, name, validity):
+    def prepare_name_registration_transactions(self,name, sender, validity):
 
         name = name.split('.algo')[0]
         

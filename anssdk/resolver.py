@@ -103,6 +103,7 @@ class ans_resolver:
                     break
                 
             names = []
+            owned_names = []
             try:
                 for txn in txns:
                     
@@ -136,14 +137,25 @@ class ans_resolver:
                                                     if(value not in names):
                                                         names.append(value.decode('utf-8')+'.algo')
                                                         break
-
-
+                '''
+                owned_names = names
+                for name in names:
+                    print(name + ' owner: '+self.resolve_name(name)["owner"])
+                    if(self.resolve_name(name)["owner"] != address):
+                        owned_names.remove(name)
+                print(owned_names)
+                '''
+                owned_names = []
+                for name in names:
+                    owner = self.resolve_name(name)["owner"]
+                    if(owner == address):
+                        owned_names.append(name)
 
             except Exception as err:
                 print('Error: ',err)
                 return []
 
-            return names            
+            return owned_names            
         
     
 

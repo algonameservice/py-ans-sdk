@@ -80,15 +80,19 @@ period = 0 # duration of registration
 
 try:
 
-    name_registration_txns = await sdk.prepare_name_registration_transactions(name_to_register, address, period)
+    name_registration_txns = sdk.prepare_name_registration_transactions(name_to_register, address, period)
 
-    if(len(name_registration_txns) == 2):
+    # Returns a tuple of size two
+    # name_registration_txns[0] includes the array of transactions
+    # name_registration_txns[1] has the logic sig
+
+    if(len(name_registration_txns[0]) == 2):
 
         # Lsig account previous opted in (name expired)
         # Sign both transactions
         # Send all to network
 
-    elif(len(name_registration_txns) == 4):
+    elif(len(name_registration_txns[0]) == 4):
 
         # name_registration_txns[2] must be signed by the sdk
         # Sign name_registration_txns index 0,1,3
@@ -119,8 +123,8 @@ try:
     address = "" # owner's algorand address
 
     edited_handles = {
-        discord: '',
-        github: ''
+        'discord': '',
+        'github': ''
     }
 
     update_name_property_txns = sdk.prepare_update_name_property_transactions(name, address, edited_handles)
@@ -142,7 +146,7 @@ try:
     owner = "" # owner address
     period = 0 # period for renewal
 
-    name_renewal_txns = await sdk.prepare_name_renewal_transactions(name, owner, period)
+    name_renewal_txns =  sdk.prepare_name_renewal_transactions(name, owner, period)
 
     # Returns an array of transactions 
     # Sign each and send to network
@@ -181,7 +185,7 @@ try:
     new_owner = "" # new owner's address
     price = 0 # price set in the previous transaction
 
-    accpet_name_transfer_txns = sdk.prepare_accept_name_transfer_transactions(name, new_owner, owner, price)
+    accept_name_transfer_txns = sdk.prepare_accept_name_transfer_transactions(name, new_owner, owner, price)
 
     # Returns an array of transactions to be signed by `newOwner`
     # Sign each and send to network

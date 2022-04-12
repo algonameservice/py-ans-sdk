@@ -38,11 +38,12 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
         account_info = self.resolver_obj.resolve_name('rand')
         self.assertEqual(account_info["owner"], 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE')
 
+    '''
     def test_prep_name_reg_txns(self):
         
         name_reg_txns = self.transactions_obj.prepare_name_registration_transactions(
-            'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE',
             'xyz01234',
+            'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE',
             5
         )
         self.assertGreaterEqual(len(name_reg_txns), 2)       
@@ -74,9 +75,8 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
     '''
     def test_names_owned_by_address(self):
         
-        account_info = self.resolver_obj.get_names_owned_by_address('RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE')
+        account_info = self.resolver_obj.get_names_owned_by_address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
         self.assertGreaterEqual(len(account_info), 2)
-    '''
 
 if __name__ == '__main__':
     unittest.main()
