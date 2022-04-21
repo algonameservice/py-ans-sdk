@@ -1,7 +1,3 @@
-from audioop import add
-from curses import meta
-from multiprocessing import connection
-from xml import dom
 from algosdk import encoding
 from pyteal import compileTeal, Mode
 from algosdk.future.transaction import LogicSig
@@ -10,6 +6,7 @@ import base64
 import time
 from pyteal import *
 from anssdk import constants, dot_algo_name_record
+from anssdk.helper import validation
 
 class ans_resolver:
     
@@ -30,8 +27,9 @@ class ans_resolver:
         return lsig
 
     def resolve_name(self, name):
-    
+        
         name = name.split('.algo')[0]
+        validation.is_valid_name(name)
         reg_app_id = constants.APP_ID
         account_info = self.algod_client.account_info(address=self.prep_name_record_logic_sig(name, reg_app_id).address())
         if(len(account_info["apps-local-state"]) == 0):
@@ -48,23 +46,23 @@ class ans_resolver:
                 if(apps_local_data['id']==reg_app_id):
                     for key_value in apps_local_data['key-value']:
                         
-                        if(base64.b64decode(key_value['key']).decode()=="expiry"):
+                        if(validation.decode_value(key_value['key'])=="expiry"):
                             expiry = key_value['value']['uint']
-                        elif(base64.b64decode(key_value['key']).decode()=="owner"):
-                            owner = encoding.encode_address(base64.b64decode(key_value['value']['bytes']))
+                        elif(validation.decode_value(key_value['key'])=="owner"):
+                            owner = validation.decode_address((key_value['value']['bytes']))
                         
-                        elif(base64.b64decode(key_value['key']).decode() in allowed_socials):
-                            key = base64.b64decode(key_value['key']).decode()
+                        elif(validation.decode_value(key_value['key']) in allowed_socials):
+                            key = validation.decode_value(key_value['key'])
                             kv = {}
-                            kv[key] = base64.b64decode(key_value['value']['bytes']).decode()
+                            kv[key] = validation.decode_value(key_value['value']['bytes'])
                             socials.append(kv)
                         else:
-                            key = base64.b64decode(key_value['key']).decode()
+                            key = validation.decode_value(key_value['key'])
                             if(key == 'name'):
                                 continue
                             if(key == 'transfer_to'):
-                                if(encoding.encode_address(base64.b64decode(key_value['value']['bytes'])) != ''):
-                                    value = encoding.encode_address(base64.b64decode(key_value['value']['bytes']))
+                                if(validation.decode_address((key_value['value']['bytes'])) != ''):
+                                    value = validation.decode_address((key_value['value']['bytes']))
                                     if(value == b''):
                                         continue
                                     kv = {}
@@ -78,9 +76,9 @@ class ans_resolver:
                                     kv[key] = value
                                     metadata.append(kv)
                                     continue
-                            if(base64.b64decode(key_value['value']['bytes']).decode() != ''):
+                            if(validation.decode_value(key_value['value']['bytes']) != ''):
                                 kv = {}
-                                kv[key] = base64.b64decode(key_value['value']['bytes']).decode()
+                                kv[key] = validation.decode_value(key_value['value']['bytes'])
                                 metadata.append(kv)
                         
                                             

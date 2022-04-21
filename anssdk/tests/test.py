@@ -38,11 +38,10 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
         account_info = self.resolver_obj.resolve_name('lalith')
         self.assertEqual(account_info["owner"], 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
 
-    '''
     def test_prep_name_reg_txns(self):
         
         name_reg_txns = self.transactions_obj.prepare_name_registration_transactions(
-            'xyz01234',
+            'xyz1234',
             'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE',
             5
         )
@@ -55,28 +54,26 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
             'twitter': 'lmedury'
         }
 
-        update_name_property_txns = self.transactions_obj.prepare_update_name_property_transactions('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', edited_handles)  
+        update_name_property_txns = self.transactions_obj.prepare_update_name_property_transactions('ans.algo', 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', edited_handles)  
         self.assertGreaterEqual(len(update_name_property_txns), 2)
 
     def test_prep_name_renew_txns(self):
 
-        name_renew_txns = self.transactions_obj.prepare_name_renewal_transactions('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 2)
+        name_renew_txns = self.transactions_obj.prepare_name_renewal_transactions('ans.algo', 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', 2)
         self.assertEqual(len(name_renew_txns), 2)
 
     def test_prep_initiate_name_transfer_txn(self):
 
-        initiate_transfer_txn = self.transactions_obj.prepare_initiate_name_transfer_transaction('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 0)
+        initiate_transfer_txn = self.transactions_obj.prepare_initiate_name_transfer_transaction('ans.algo', 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 0)
 
     def test_prep_accept_name_transfer_txns(self):
 
-        accept_transfer_txns = self.transactions_obj.prepare_accept_name_transfer_transactions('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 0)
+        accept_transfer_txns = self.transactions_obj.prepare_accept_name_transfer_transactions('ans.algo', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE', 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', 0)
         self.assertEqual(len(accept_transfer_txns), 3)
 
-    '''
     def test_names_owned_by_address(self):
         
-        account_info = self.resolver_obj.get_names_owned_by_address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', False, True, 3)
-        print(account_info)
+        account_info = self.resolver_obj.get_names_owned_by_address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', True, True, 3)
         self.assertGreaterEqual(len(account_info), 2)
 
 if __name__ == '__main__':
