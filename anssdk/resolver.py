@@ -1,4 +1,7 @@
 from audioop import add
+from curses import meta
+from multiprocessing import connection
+from xml import dom
 from algosdk import encoding
 from pyteal import compileTeal, Mode
 from algosdk.future.transaction import LogicSig
@@ -27,7 +30,7 @@ class ans_resolver:
         return lsig
 
     def resolve_name(self, name):
-        
+    
         name = name.split('.algo')[0]
         reg_app_id = constants.APP_ID
         account_info = self.algod_client.account_info(address=self.prep_name_record_logic_sig(name, reg_app_id).address())
@@ -36,21 +39,58 @@ class ans_resolver:
                 'found': False
             })
         try:
+            socials = []
+            metadata = []
+            allowed_socials = ['twitter', 'github', 'youtube', 'telegram', 'reddit', 'discord']
             for apps_local_data in account_info['apps-local-state']:
                 owner = None
                 expiry = None
                 if(apps_local_data['id']==reg_app_id):
                     for key_value in apps_local_data['key-value']:
+                        
                         if(base64.b64decode(key_value['key']).decode()=="expiry"):
                             expiry = key_value['value']['uint']
                         elif(base64.b64decode(key_value['key']).decode()=="owner"):
                             owner = encoding.encode_address(base64.b64decode(key_value['value']['bytes']))
+                        
+                        elif(base64.b64decode(key_value['key']).decode() in allowed_socials):
+                            key = base64.b64decode(key_value['key']).decode()
+                            kv = {}
+                            kv[key] = base64.b64decode(key_value['value']['bytes']).decode()
+                            socials.append(kv)
+                        else:
+                            key = base64.b64decode(key_value['key']).decode()
+                            if(key == 'name'):
+                                continue
+                            if(key == 'transfer_to'):
+                                if(encoding.encode_address(base64.b64decode(key_value['value']['bytes'])) != ''):
+                                    value = encoding.encode_address(base64.b64decode(key_value['value']['bytes']))
+                                    if(value == b''):
+                                        continue
+                                    kv = {}
+                                    kv[key] = value
+                                    metadata.append(kv)
+                                    continue
+                            if(key == 'transfer_price'):
+                                if(key_value['value']['uint'] != ''):
+                                    value = key_value['value']['uint']
+                                    kv = {}
+                                    kv[key] = value
+                                    metadata.append(kv)
+                                    continue
+                            if(base64.b64decode(key_value['value']['bytes']).decode() != ''):
+                                kv = {}
+                                kv[key] = base64.b64decode(key_value['value']['bytes']).decode()
+                                metadata.append(kv)
+                        
                                             
                 if(owner!=None and expiry!=None and expiry>int(time.time())):
                     return ({
                         'found': True,
                         'owner': owner,
-                        'expiry': expiry
+                        'expiry': expiry,
+                        'socials': socials,
+                        'metadata': metadata
                     })
                 else:
                     
@@ -58,13 +98,13 @@ class ans_resolver:
                         'found': False
                     })
 
-        except:
-            
+        except Exception as e:
+            print(e)
             return ({
                 'found': False
             })         
 
-    def get_names_owned_by_address(self,address):
+    def get_names_owned_by_address(self,address, socials=False, metadata=False, limit=0):
         is_valid_address = encoding.is_valid_address(address)
         indexer = None
         try:
@@ -137,19 +177,20 @@ class ans_resolver:
                                                     if(value not in names):
                                                         names.append(value.decode('utf-8')+'.algo')
                                                         break
-                '''
-                owned_names = names
-                for name in names:
-                    print(name + ' owner: '+self.resolve_name(name)["owner"])
-                    if(self.resolve_name(name)["owner"] != address):
-                        owned_names.remove(name)
-                print(owned_names)
-                '''
                 owned_names = []
                 for name in names:
-                    owner = self.resolve_name(name)["owner"]
-                    if(owner == address):
-                        owned_names.append(name)
+                    if(len(owned_names) >= limit and limit > 0):
+                        return owned_names
+
+                    domain_info = self.resolve_name(name)
+                    if(domain_info["owner"] == address):
+                        kv = {}
+                        kv['name'] = name
+                        if(socials is True):
+                            kv['socials'] = domain_info['socials']
+                        if(metadata is True):
+                            kv['metadata'] = domain_info['metadata']
+                        owned_names.append(kv)
 
             except Exception as err:
                 print('Error: ',err)

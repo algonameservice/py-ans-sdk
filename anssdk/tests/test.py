@@ -35,8 +35,8 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
 
     def test_name_resolution(self):
         
-        account_info = self.resolver_obj.resolve_name('rand')
-        self.assertEqual(account_info["owner"], 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE')
+        account_info = self.resolver_obj.resolve_name('lalith')
+        self.assertEqual(account_info["owner"], 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
 
     '''
     def test_prep_name_reg_txns(self):
@@ -75,7 +75,8 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
     '''
     def test_names_owned_by_address(self):
         
-        account_info = self.resolver_obj.get_names_owned_by_address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
+        account_info = self.resolver_obj.get_names_owned_by_address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', False, True, 3)
+        print(account_info)
         self.assertGreaterEqual(len(account_info), 2)
 
 if __name__ == '__main__':
