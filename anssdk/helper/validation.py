@@ -28,3 +28,5 @@ def is_valid_name(name):
 
     if(valid is not True):
         raise Exception('Invalid domain name. Domain names only have a character set a-z and 0-9')
+    
+    return valid

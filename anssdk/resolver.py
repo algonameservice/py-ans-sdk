@@ -8,7 +8,7 @@ from pyteal import *
 from anssdk import constants, dot_algo_name_record
 from anssdk.helper import validation
 
-class ans_resolver:
+class AnsResolver:
     
     def __init__(self, client, indexer=None):
         self.algod_client = client

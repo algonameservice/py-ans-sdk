@@ -10,15 +10,17 @@ furnished to do so, subject to the following conditions:
 '''
 
 
+from cmath import exp
+from unicodedata import name
 import unittest
 import ans_helper as anshelper
+import datetime
 
 
 import sys
 sys.path.append('../')
-from anssdk import constants, transactions
-
-from anssdk.resolver import ans_resolver
+from anssdk import constants
+from anssdk.ans import ANS
 
 unittest.TestLoader.sortTestMethodsUsing = None
 
@@ -28,16 +30,46 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
     def setUpClass(cls):
         cls.algod_client = anshelper.SetupClient()
         cls.algod_indexer = anshelper.SetupIndexer()
+        cls.sdk = ANS(cls.algod_client, cls.algod_indexer)
+        '''
         cls.app_index = constants.APP_ID
         cls.resolver_obj = ans_resolver(cls.algod_client, cls.algod_indexer)
         cls.transactions_obj = transactions.Transactions(cls.algod_client)
+        '''
 
-
+    '''
     def test_name_resolution(self):
         
-        account_info = self.resolver_obj.resolve_name('lalith.algo')
-        self.assertEqual(account_info["owner"], 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
+        owner = self.sdk.name('lalith.algo').get_owner()
+        self.assertEqual(owner, 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
+        
+    def test_name_resolution_value_property(self):
+    
+        value = self.sdk.name('lalith.algo').get_value()
+        self.assertEqual(value, 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
+    
+    def test_name_resolution_content_property(self):
+    
+        content = self.sdk.name('ans.algo').get_content()
+        self.assertEqual(content, 'sia://CABxqjJm9_J1fDCeytsQrmsKn3f0z2nbzfgE_N73MU0bpA')
 
+    def test_name_resolution_text_property(self):
+    
+        value = self.sdk.name('ans.algo').get_text('discord')
+        self.assertEqual(value, 'https://discord.gg/6fKwtXWKUR')
+
+    def test_name_resolution_get_all_information(self):
+    
+        info = self.sdk.name('ans.algo').get_all_information()
+        self.assertEqual(info['found'], True)
+    '''
+    def test_name_resolution_get_expiry(self):
+    
+        expiry = self.sdk.name('ans.algo').get_expiry()
+        self.assertEqual(expiry, datetime.datetime(2023, 2, 25, 21, 58, 50))
+
+
+    '''
     def test_prep_name_reg_txns(self):
         
         name_reg_txns = self.transactions_obj.prepare_name_registration_transactions(
@@ -75,6 +107,7 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
         
         account_info = self.resolver_obj.get_names_owned_by_address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', True, True, 3)
         self.assertGreaterEqual(len(account_info), 2)
+    '''
 
 if __name__ == '__main__':
     unittest.main()
