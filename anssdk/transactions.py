@@ -42,6 +42,7 @@ class Transactions:
     def prepare_name_registration_transactions(self,name, sender, validity):
 
         name = name.split('.algo')[0]
+        name = name.lower()
         validation.is_valid_name(name)
         validation.is_valid_address(sender)
         if(self.resolver_obj.resolve_name(name)['found'] is True):
@@ -85,6 +86,7 @@ class Transactions:
     def prepare_update_name_property_transactions(self, domainname, sender, edited_handles={}):
 
         domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
         validation.is_valid_name(domainname)
         validation.is_valid_address(sender)
         domain_info = self.resolver_obj.resolve_name(domainname)
@@ -122,6 +124,7 @@ class Transactions:
     def prepare_name_renewal_transactions(self, domainname, sender, years):
         
         domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
         validation.is_valid_name(domainname)
         validation.is_valid_address(sender)
         domain_info = self.resolver_obj.resolve_name(domainname)
@@ -154,6 +157,7 @@ class Transactions:
     def prepare_initiate_name_transfer_transaction(self, domainname, sender, recipient_addr, tnsfr_price):
 
         domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
         validation.is_valid_name(domainname)
         validation.is_valid_address(sender)
         validation.is_valid_address(recipient_addr)
@@ -175,6 +179,7 @@ class Transactions:
     def prepare_accept_name_transfer_transactions(self, domainname, sender, recipient_addr, tnsfr_price):
 
         domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
         validation.is_valid_name(domainname)
         validation.is_valid_address(sender)
         validation.is_valid_address(recipient_addr)

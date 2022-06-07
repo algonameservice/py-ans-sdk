@@ -35,7 +35,7 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
 
     def test_name_resolution(self):
         
-        account_info = self.resolver_obj.resolve_name('lalith')
+        account_info = self.resolver_obj.resolve_name('lalith.algo')
         self.assertEqual(account_info["owner"], 'PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
 
     def test_prep_name_reg_txns(self):

@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '0.0.6'
+VERSION = '0.1.0'
 DESCRIPTION = 'Python SDK to resolve ANS .algo names'
 LONG_DESCRIPTION = 'This Python SDK helps in resolving ANS .algo names to wallet addresses and view names owned by a specific Algorand Wallet address'
 

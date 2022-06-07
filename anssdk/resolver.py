@@ -27,8 +27,9 @@ class ans_resolver:
         return lsig
 
     def resolve_name(self, name):
-        
+      
         name = name.split('.algo')[0]
+        name = name.lower()
         validation.is_valid_name(name)
         reg_app_id = constants.APP_ID
         account_info = self.algod_client.account_info(address=self.prep_name_record_logic_sig(name, reg_app_id).address())
@@ -40,16 +41,19 @@ class ans_resolver:
             socials = []
             metadata = []
             allowed_socials = ['twitter', 'github', 'youtube', 'telegram', 'reddit', 'discord']
+            value_property=None
             for apps_local_data in account_info['apps-local-state']:
                 owner = None
                 expiry = None
                 if(apps_local_data['id']==reg_app_id):
                     for key_value in apps_local_data['key-value']:
-                        
                         if(validation.decode_value(key_value['key'])=="expiry"):
                             expiry = key_value['value']['uint']
                         elif(validation.decode_value(key_value['key'])=="owner"):
                             owner = validation.decode_address((key_value['value']['bytes']))
+                            
+                        elif(validation.decode_value(key_value['key'])=="value"):
+                            value_property = validation.decode_address((key_value['value']['bytes']))
                         
                         elif(validation.decode_value(key_value['key']) in allowed_socials):
                             key = validation.decode_value(key_value['key'])
@@ -83,24 +87,25 @@ class ans_resolver:
                         
                                             
                 if(owner!=None and expiry!=None and expiry>int(time.time())):
+                    value_property = owner
                     return ({
                         'found': True,
                         'owner': owner,
                         'expiry': expiry,
                         'socials': socials,
-                        'metadata': metadata
+                        'metadata': metadata,
+                        'value': value_property
                     })
                 else:
-                    
                     return ({
                         'found': False
                     })
 
         except Exception as e:
-            print(e)
             return ({
                 'found': False
             })         
+        
 
     def get_names_owned_by_address(self,address, socials=False, metadata=False, limit=0):
         is_valid_address = encoding.is_valid_address(address)

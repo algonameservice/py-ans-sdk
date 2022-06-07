@@ -49,14 +49,20 @@ This method gets all the names owned by an Algorand address in reverse chronolog
 ```
 address="" # provide an algorand wallet address here
 
-names = resolver_obj.get_names_owned_by_address(address)
+# optional parameters
+socials=True # return socials along with domain owner information
+metadata=True # return metadata along with domain owner information
+limit=1 # limit the number of domains to be retrieved 
+
+names = resolver_obj.get_names_owned_by_address(address, socials, metadata, limit)
 
 # Returns an array of names owned by the address
 # Names appear in a reverse chronological order (names[0] returns recently purchased name)
 
 if(len(names) > 0):
-    for name in names:
-        print(name)
+    for domain in names:
+        print(domain['name'])
+        # domain['socials'] and domain['metadata'] can be retrieved as well
 else:
     print('No names registered by given address')        
 ```
@@ -65,12 +71,12 @@ else:
 
 Import 
 ```
-import anssdk.transactions as Transactions
+import anssdk.transactions as transactions
 ```
 Setup
 ```
 algod_client = "" #setup your algodv2 client
-sdk = Transactions(algod_client)
+sdk = transactions.Transactions(algod_client)
 ```
 Prepare name registration transactions
 ```

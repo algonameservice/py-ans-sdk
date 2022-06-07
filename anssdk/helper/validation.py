@@ -7,7 +7,10 @@ def is_valid_address(address):
         raise Exception('Invalid Algorand address')
 
 def decode_value(value):
-    return base64.b64decode(value).decode()
+    try:
+        return base64.b64decode(value).decode()
+    except  Exception as e:
+        return ""
 
 def decode_address(address):
     return encoding.encode_address(base64.b64decode(address))
@@ -22,6 +25,6 @@ def is_valid_name(name):
             continue
         else:
             valid=False
-    
+
     if(valid is not True):
         raise Exception('Invalid domain name. Domain names only have a character set a-z and 0-9')
