@@ -31,13 +31,7 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
         cls.algod_client = anshelper.SetupClient()
         cls.algod_indexer = anshelper.SetupIndexer()
         cls.sdk = ANS(cls.algod_client, cls.algod_indexer)
-        '''
-        cls.app_index = constants.APP_ID
-        cls.resolver_obj = ans_resolver(cls.algod_client, cls.algod_indexer)
-        cls.transactions_obj = transactions.Transactions(cls.algod_client)
-        '''
 
-    '''
     def test_name_resolution(self):
         
         owner = self.sdk.name('lalith.algo').get_owner()
@@ -62,12 +56,17 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
     
         info = self.sdk.name('ans.algo').get_all_information()
         self.assertEqual(info['found'], True)
-    '''
+    
     def test_name_resolution_get_expiry(self):
     
         expiry = self.sdk.name('ans.algo').get_expiry()
         self.assertEqual(expiry, datetime.datetime(2023, 2, 25, 21, 58, 50))
 
+    
+    def test_names_owned_by_address(self):
+        names = self.sdk.address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU').get_names(socials=True, limit=2)
+        self.assertGreaterEqual(len(names), 2)
+        
 
     '''
     def test_prep_name_reg_txns(self):
