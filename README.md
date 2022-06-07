@@ -84,7 +84,7 @@ period = 0 # duration of registration
 
 try:
 
-    name_registration_txns = sdk.name(name_to_register).(address, period)
+    name_registration_txns = sdk.name(name_to_register).register(address, period)
 
     # Returns a tuple of size two
     # name_registration_txns[0] includes the array of transactions
@@ -196,6 +196,18 @@ try:
 
 except:
     pass
+```
+
+## Get domains owned by an address
+Returns domains owned by an algorand address
+```
+address="" # provide an algorand address here
+socials=True # return socials along with domain information
+metadata=True # return metadata along with domain information
+limit=1 #limit the number of domains to retrieve
+
+domains = sdk.address(address).get_names(socials, metadata, limit)
+print(domains)
 ```
 
 ## Get default domain
