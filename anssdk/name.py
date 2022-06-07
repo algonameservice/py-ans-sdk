@@ -1,4 +1,5 @@
 
+from audioop import add
 from curses import meta
 from anssdk.resolver import AnsResolver
 from anssdk.transactions import Transactions
@@ -8,6 +9,7 @@ class Name:
     def __init__(self, name, client, indexer=None):
         self.name=name
         self.resolver_obj = AnsResolver(client, indexer)
+        self.transactions_obj = Transactions(client)
     
     def get_owner(self):
         domain_info = self.resolver_obj.resolve_name(self.name)
@@ -45,4 +47,48 @@ class Name:
         info = self.resolver_obj.resolve_name(self.name)
         if(info['found'] is True):
             return datetime.datetime.fromtimestamp(info['expiry'])
+
+    def register(self, address, period):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is True):
+            raise Exception('Domain {domain} is already registered'.format(domain = self.name))
+        
+        return self.transactions_obj.prepare_name_registration_transactions(self.name, address, period)
+
+    def update(self, address, edited_handles):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is not True):
+            raise Exception('Domain {domain} is not registered'.format(domain = self.name))
+        
+        return self.transactions_obj.prepare_update_name_property_transactions(self.name, address, edited_handles)
+
+    def renew(self, address, period):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is not True):
+            raise Exception('Domain {domain} is not registered'.format(domain = self.name))
+        
+        return self.transactions_obj.prepare_name_renewal_transactions(self.name, address, period)
+
+    def init_transfer(self, owner, new_owner, price):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is not True):
+            raise Exception('Domain {domain} is not registered'.format(domain = self.name))
+        
+        if(info['owner'] != owner):
+            raise Exception('Domain {domain} is not owned by {address}'.format(domain=self.name, address=owner))
+        
+        return self.transactions_obj.prepare_initiate_name_transfer_transaction(self.name, owner, new_owner, price)
+
+    def accept_transfer(self, new_owner, owner, price):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is not True):
+            raise Exception('Domain {domain} is not registered'.format(domain = self.name))
+        
+        if(info['owner'] != owner):
+            raise Exception('Domain {domain} is not owned by {address}'.format(domain=self.name, address=owner))
+        
+        return self.transactions_obj.prepare_accept_name_transfer_transactions(self.name, new_owner, owner, price)
+        
+
+    
     
