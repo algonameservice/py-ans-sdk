@@ -79,7 +79,6 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
             'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE',
             5
         )
-        print(name_reg_txns)
         self.assertGreaterEqual(len(name_reg_txns), 2)       
     
     def test_prep_link_socials_txn(self):

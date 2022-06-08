@@ -7,6 +7,7 @@ import time
 from pyteal import *
 from anssdk import constants, dot_algo_name_record
 from anssdk.helper import validation
+from anssdk.constants import VALID_BYTE_PROPERTIES, VALID_ADDRESS_PROPERTIES, VALID_INT_PROPERTIES
 
 class AnsResolver:
     
@@ -47,47 +48,44 @@ class AnsResolver:
                 expiry = None
                 if(apps_local_data['id']==reg_app_id):
                     for key_value in apps_local_data['key-value']:
-                        if(validation.decode_value(key_value['key'])=="expiry"):
-                            expiry = key_value['value']['uint']
-                        elif(validation.decode_value(key_value['key'])=="owner"):
-                            owner = validation.decode_address((key_value['value']['bytes']))
-                            
-                        elif(validation.decode_value(key_value['key'])=="value"):
-                            value_property = validation.decode_address((key_value['value']['bytes']))
-                        
-                        elif(validation.decode_value(key_value['key']) in allowed_socials):
-                            key = validation.decode_value(key_value['key'])
-                            kv = {}
-                            kv[key] = validation.decode_value(key_value['value']['bytes'])
-                            socials.append(kv)
-                        else:
-                            key = validation.decode_value(key_value['key'])
-                            if(key == 'name'):
+                        key = validation.decode_value(key_value['key'])
+                        if(key == 'name'):
+                            continue
+                        if(key in VALID_ADDRESS_PROPERTIES):
+                            kv={}
+                            value = validation.decode_address(key_value['value']['bytes'])
+                            if(key == 'owner'):
+                                owner = value
+                            elif(key == 'value'):
+                                value_property = value
+                            elif(key == 'transfer_to'):
+                                if(value != b''):
+                                    kv[key] = value
+                                    metadata.append(kv)
+                        elif(key in VALID_BYTE_PROPERTIES):
+                            value = validation.decode_value(key_value['value']['bytes'])
+                            kv={}
+                            if(value == b''):
                                 continue
-                            if(key == 'transfer_to'):
-                                if(validation.decode_address((key_value['value']['bytes'])) != ''):
-                                    value = validation.decode_address((key_value['value']['bytes']))
-                                    if(value == b''):
-                                        continue
-                                    kv = {}
-                                    kv[key] = value
-                                    metadata.append(kv)
-                                    continue
-                            if(key == 'transfer_price'):
-                                if(key_value['value']['uint'] != ''):
-                                    value = key_value['value']['uint']
-                                    kv = {}
-                                    kv[key] = value
-                                    metadata.append(kv)
-                                    continue
-                            if(validation.decode_value(key_value['value']['bytes']) != ''):
-                                kv = {}
-                                kv[key] = validation.decode_value(key_value['value']['bytes'])
-                                metadata.append(kv)
+                            if(key in allowed_socials):
+                                kv[key] = value
+                                socials.append(kv)
+                                continue
+                            kv[key]=value
+                            metadata.append(kv)
+                        elif(key in VALID_INT_PROPERTIES):
+                            kv={}
+                            value = key_value['value']['uint']
+                            kv[key] = value
+                            if(key == 'expiry'):
+                                expiry=value
+                                continue
+                            metadata.append(kv)
                         
                                             
                 if(owner!=None and expiry!=None and expiry>int(time.time())):
-                    value_property = owner
+                    if(value_property is None):
+                        value_property = owner
                     return ({
                         'found': True,
                         'owner': owner,
