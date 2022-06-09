@@ -3,8 +3,7 @@ import base64
 from anssdk import constants
 
 def is_valid_address(address):
-    if(encoding.is_valid_address(address) is not True):
-        raise Exception('Invalid Algorand address')
+    return encoding.is_valid_address(address)
 
 def decode_value(value):
     try:
@@ -28,3 +27,5 @@ def is_valid_name(name):
 
     if(valid is not True):
         raise Exception('Invalid domain name. Domain names only have a character set a-z and 0-9')
+    
+    return valid

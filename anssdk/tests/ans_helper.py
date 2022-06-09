@@ -9,11 +9,7 @@ copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 '''
 
-from algosdk import mnemonic, account, encoding
-from algosdk.future import transaction
-from algosdk.future.transaction import LogicSig, LogicSigTransaction, LogicSigAccount
 from algosdk.v2client import algod, indexer
-from algosdk import logic
 from pyteal import *
 
 import sys

@@ -13,7 +13,7 @@ pip3 install anssdk
 
 ## Import
 ```
-import anssdk.resolver as resolver
+from anssdk.ans import ANS
 ```
 
 ## Setup
@@ -25,59 +25,57 @@ algod_indexer = "" # set up your algod indexer
 #indexer is not required if the intention is to only resolve .algo names, but it is required to view the names owned by an algorand wallet address
 #indexer and client must point to mainnet
 
-resolver_obj = resolver.ans_resolver(client)
-(OR)
-resolver_obj = resolver.ans_resolver(client, indexer)
+sdk = ANS(algod_client, algod_indexer)
 ```
 
 
 ## Resolve .algo name
-Resolve .algo name to get the address of the owner.
+Resolve .algo name to get the address of the owner. The owner of the account is authorized to manage the domain including setting properties and transfer
 ```
 name = "ans.algo"
 
-name_info = resolver_obj.resolve_name(name)
-
-if(name_info["found"] is True):
-    print(name_info["address"])
-else:
-    print('Name not registered')    
+owner = sdk.name(name).get_owner()
+print(owner)
 ```
 
-## Get names owned by an address
-This method gets all the names owned by an Algorand address in reverse chronological order of registration.
+## Get value property
+The value property is set by the owner to return a different address when resolving the domain names.
 ```
-address="" # provide an algorand wallet address here
+name = "ans.algo"
 
-# optional parameters
-socials=True # return socials along with domain owner information
-metadata=True # return metadata along with domain owner information
-limit=1 # limit the number of domains to be retrieved 
+value_property = sdk.name(name).get_value()
+print(value_property)
+```
 
-names = resolver_obj.get_names_owned_by_address(address, socials, metadata, limit)
+## Get content property
+The content property is set by the user to host a website on web3 infrastructure. This is expected to be either a Skylink content ID or an IPFS content ID
+```
+name = "ans.algo"
 
-# Returns an array of names owned by the address
-# Names appear in a reverse chronological order (names[0] returns recently purchased name)
+content = sdk.name(name).get_content()
+print(content)
+```
 
-if(len(names) > 0):
-    for domain in names:
-        print(domain['name'])
-        # domain['socials'] and domain['metadata'] can be retrieved as well
-else:
-    print('No names registered by given address')        
+## Get text record
+Return text record (socials, avatar etc) set by the owner.
+```
+name = "ans.algo"
+key = "discord"
+record = sdk.name(name).get_text(key)
+print(record)
+```
+
+## Get domain information
+Return the entire domain information for the given domains.
+```
+name = "ans.algo"
+information = sdk.name(name).get_all_information()
+print(information)
 ```
 
 ## Register a new name
 
-Import 
-```
-import anssdk.transactions as transactions
-```
-Setup
-```
-algod_client = "" #setup your algodv2 client
-sdk = transactions.Transactions(algod_client)
-```
+
 Prepare name registration transactions
 ```
 name_to_register = "" #.algo name to register
@@ -86,7 +84,7 @@ period = 0 # duration of registration
 
 try:
 
-    name_registration_txns = sdk.prepare_name_registration_transactions(name_to_register, address, period)
+    name_registration_txns = sdk.name(name_to_register).register(address, period)
 
     # Returns a tuple of size two
     # name_registration_txns[0] includes the array of transactions
@@ -133,7 +131,7 @@ try:
         'github': ''
     }
 
-    update_name_property_txns = sdk.prepare_update_name_property_transactions(name, address, edited_handles)
+    update_name_property_txns = sdk.name(name).update(address, edited_handles)
 
     # Returns an array of transactions
     # Sign each and send to network
@@ -152,7 +150,7 @@ try:
     owner = "" # owner address
     period = 0 # period for renewal
 
-    name_renewal_txns =  sdk.prepare_name_renewal_transactions(name, owner, period)
+    name_renewal_txns =  sdk.name(name).renew(owner, period)
 
     # Returns an array of transactions 
     # Sign each and send to network
@@ -172,7 +170,7 @@ try:
     new_owner = "" # new owner's address
     price = 0 # price at which the seller is willing to sell the name
 
-    name_transfer_transaction = sdk.prepare_initiate_name_transfer_transaction(name, owner, new_owner, price)
+    name_transfer_transaction = sdk.name(name).init_transfer( owner, new_owner, price)
 
     # Returns a transaction to be signed by `owner` 
     # Sign and send to network
@@ -191,13 +189,34 @@ try:
     new_owner = "" # new owner's address
     price = 0 # price set in the previous transaction
 
-    accept_name_transfer_txns = sdk.prepare_accept_name_transfer_transactions(name, new_owner, owner, price)
+    accept_name_transfer_txns = sdk.name(name).accept_transfer( new_owner, owner, price)
 
     # Returns an array of transactions to be signed by `newOwner`
     # Sign each and send to network
 
 except:
     pass
+```
+
+## Get domains owned by an address
+Returns domains owned by an algorand address
+```
+address="" # provide an algorand address here
+socials=True # return socials along with domain information
+metadata=True # return metadata along with domain information
+limit=1 #limit the number of domains to retrieve
+
+domains = sdk.address(address).get_names(socials, metadata, limit)
+print(domains)
+```
+
+## Get default domain
+If configured, this method returns the default domain set by an address. If not configured, this method returns the most recently purchased domain by an address
+```
+address="" # provide an algorand address here
+
+default_domain = sdk.address(address).get_default_domain()
+print(default_domain)
 ```
 
 

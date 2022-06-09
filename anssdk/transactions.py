@@ -10,13 +10,13 @@ from pyteal import *
 from anssdk import constants, dot_algo_name_record
 from algosdk.future import transaction
 from anssdk.helper import validation
-from anssdk.resolver import ans_resolver
+from anssdk.resolver import AnsResolver
 
 class Transactions:
 
     def __init__(self, client):
         self.algod_client = client
-        self.resolver_obj = ans_resolver(client)
+        self.resolver_obj = AnsResolver(client)
 
     def compile_program(self, algod_client, source_code) :
         compile_response = algod_client.compile(source_code.decode('utf-8'))
