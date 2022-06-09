@@ -1,49 +1,224 @@
 # PY-ANS-SDK
+A python sdk to resolve .algo names and perform name operations on ANS .algo names.
 
-## Install package
+## Documentation
 
+
+Install Package
+
+**`pip`**
 ```
 pip3 install anssdk
 ```
 
-### Import package
+## Import
 ```
-import anssdk.resolver as resolver
+from anssdk.ans import ANS
+```
 
+## Setup
+
+```
 algod_client = "" # set up your algodV2 client
 algod_indexer = "" # set up your algod indexer
 
 #indexer is not required if the intention is to only resolve .algo names, but it is required to view the names owned by an algorand wallet address
 #indexer and client must point to mainnet
 
-resolver_obj = resolver.ans_resolver(client)
-(OR)
-resolver_obj = resolver.ans_resolver(client, indexer)
+sdk = ANS(algod_client, algod_indexer)
 ```
 
-### Resolve .algo name
 
+## Resolve .algo name
+Resolve .algo name to get the address of the owner. The owner of the account is authorized to manage the domain including setting properties and transfer
 ```
 name = "ans.algo"
 
-name_info = resolver_obj.resolver_name(name)
-
-if(name_info["found"] is True):
-    print(name_info["address"])
-else:
-    print('Name not registered')    
+owner = sdk.name(name).get_owner()
+print(owner)
 ```
 
-### Get names owned by an address
+## Get value property
+The value property is set by the owner to return a different address when resolving the domain names.
+```
+name = "ans.algo"
+
+value_property = sdk.name(name).get_value()
+print(value_property)
+```
+
+## Get content property
+The content property is set by the user to host a website on web3 infrastructure. This is expected to be either a Skylink content ID or an IPFS content ID
+```
+name = "ans.algo"
+
+content = sdk.name(name).get_content()
+print(content)
+```
+
+## Get text record
+Return text record (socials, avatar etc) set by the owner.
+```
+name = "ans.algo"
+key = "discord"
+record = sdk.name(name).get_text(key)
+print(record)
+```
+
+## Get domain information
+Return the entire domain information for the given domains.
+```
+name = "ans.algo"
+information = sdk.name(name).get_all_information()
+print(information)
+```
+
+## Register a new name
+
+
+Prepare name registration transactions
+```
+name_to_register = "" #.algo name to register
+address = "" # owner's algorand wallet address
+period = 0 # duration of registration
+
+try:
+
+    name_registration_txns = sdk.name(name_to_register).register(address, period)
+
+    # Returns a tuple of size two
+    # name_registration_txns[0] includes the array of transactions
+    # name_registration_txns[1] has the logic sig
+
+    if(len(name_registration_txns[0]) == 2):
+
+        # Lsig account previous opted in (name expired)
+        # Sign both transactions
+        # Send all to network
+
+    elif(len(name_registration_txns[0]) == 4):
+
+        # name_registration_txns[2] must be signed by the sdk
+        # Sign name_registration_txns index 0,1,3
+        # Submit transactions as a group
+
+        signed_group_txns = []
+
+        txns = [
+            signed_group_txns[0],
+            signed_group_txns[1],
+            signed_group_txns[2], # must be signed by the sdk
+            signed_group_txns[3]
+        ]
+
+        # send to network
+
+except:
+    pass
+```
+
+## Update Name (Set name properties)
+This method returns transactions to set the social media handles of a domain name
 
 ```
-address="" # provide an algorand wallet address here
+try:
 
-names = resolver_obj.get_names_owned_by_address(address)
+    name = "" #.algo name
+    address = "" # owner's algorand address
 
-if(len(names) > 0):
-    for name in names:
-        print(name)
-else:
-    print('No names registered by given address')        
+    edited_handles = {
+        'discord': '',
+        'github': ''
+    }
+
+    update_name_property_txns = sdk.name(name).update(address, edited_handles)
+
+    # Returns an array of transactions
+    # Sign each and send to network
+
+except:
+    pass
 ```
+
+## Renew Name
+Retrieve transactions to renew a name. The ANS registry currently supports renewal only by the owner hence the transactions will fail if the input address is not the current owner of the name.
+
+```
+try:
+
+    name = "" # .algo name
+    owner = "" # owner address
+    period = 0 # period for renewal
+
+    name_renewal_txns =  sdk.name(name).renew(owner, period)
+
+    # Returns an array of transactions 
+    # Sign each and send to network
+
+except:
+    pass
+```
+
+## Initiate transfer
+This method returns a transaction to initiate name transfer. The owner is required to set the price for transfer and the recipient's algorand account address.
+
+```
+try:
+    
+    name = "" # .algo name to initiate transfer
+    owner = "" # current owner
+    new_owner = "" # new owner's address
+    price = 0 # price at which the seller is willing to sell the name
+
+    name_transfer_transaction = sdk.name(name).init_transfer( owner, new_owner, price)
+
+    # Returns a transaction to be signed by `owner` 
+    # Sign and send to network
+
+except:
+    pass
+```
+
+## Accept transfer
+Retrieve the transactions to complete the transfer by providing the current owner's address, the transfer recipient's address, and the price set by the owner
+```
+try:
+    
+    name = "" # .algo name to accept transfer
+    owner = "" # current owner
+    new_owner = "" # new owner's address
+    price = 0 # price set in the previous transaction
+
+    accept_name_transfer_txns = sdk.name(name).accept_transfer( new_owner, owner, price)
+
+    # Returns an array of transactions to be signed by `newOwner`
+    # Sign each and send to network
+
+except:
+    pass
+```
+
+## Get domains owned by an address
+Returns domains owned by an algorand address
+```
+address="" # provide an algorand address here
+socials=True # return socials along with domain information
+metadata=True # return metadata along with domain information
+limit=1 #limit the number of domains to retrieve
+
+domains = sdk.address(address).get_names(socials, metadata, limit)
+print(domains)
+```
+
+## Get default domain
+If configured, this method returns the default domain set by an address. If not configured, this method returns the most recently purchased domain by an address
+```
+address="" # provide an algorand address here
+
+default_domain = sdk.address(address).get_default_domain()
+print(default_domain)
+```
+
+
+
+

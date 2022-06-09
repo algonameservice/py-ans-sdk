@@ -10,3 +10,6 @@ ASCII_DIGIT_0 = 48
 ASCII_DIGIT_9 = 57
 APP_ID = 628095415
 RELEASE_TIME = "2022-02-25T10:00:00"
+VALID_BYTE_PROPERTIES = ['discord', 'github', 'reddit', 'telegram', 'twitter', 'youtube', 'ipaddress', 'content', 'name']
+VALID_INT_PROPERTIES = ['is_default', 'subdomain', 'transfer_price', 'expiry']
+VALID_ADDRESS_PROPERTIES = ['owner', 'transfer_to', 'value']

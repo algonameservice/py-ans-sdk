@@ -1,3 +1,5 @@
+
+from xml import dom
 from algosdk import encoding
 from click import edit
 from pyteal import compileTeal, Mode
@@ -7,11 +9,14 @@ import base64
 from pyteal import *
 from anssdk import constants, dot_algo_name_record
 from algosdk.future import transaction
+from anssdk.helper import validation
+from anssdk.resolver import AnsResolver
 
 class Transactions:
 
     def __init__(self, client):
         self.algod_client = client
+        self.resolver_obj = AnsResolver(client)
 
     def compile_program(self, algod_client, source_code) :
         compile_response = algod_client.compile(source_code.decode('utf-8'))
@@ -34,10 +39,14 @@ class Transactions:
         else:
             return 5000000        
 
-    def prepare_name_registration_transactions(self,sender, name, validity):
+    def prepare_name_registration_transactions(self,name, sender, validity):
 
         name = name.split('.algo')[0]
-        
+        name = name.lower()
+        validation.is_valid_name(name)
+        validation.is_valid_address(sender)
+        if(self.resolver_obj.resolve_name(name)['found'] is True):
+            raise Exception('The domain is already registered')
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
         # Prepare group txn array
@@ -77,7 +86,14 @@ class Transactions:
     def prepare_update_name_property_transactions(self, domainname, sender, edited_handles={}):
 
         domainname = domainname.split('.algo')[0]
-        
+        domainname = domainname.lower()
+        validation.is_valid_name(domainname)
+        validation.is_valid_address(sender)
+        domain_info = self.resolver_obj.resolve_name(domainname)
+        if(domain_info['found'] is not True):
+            raise Exception('The domain is not registered')
+        if(domain_info['owner'] != sender):
+            raise Exception('The address provided is not the domain owner')            
         gtxns = []
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
@@ -108,7 +124,14 @@ class Transactions:
     def prepare_name_renewal_transactions(self, domainname, sender, years):
         
         domainname = domainname.split('.algo')[0]
-
+        domainname = domainname.lower()
+        validation.is_valid_name(domainname)
+        validation.is_valid_address(sender)
+        domain_info = self.resolver_obj.resolve_name(domainname)
+        if(domain_info['found'] is not True):
+            raise Exception('The domain is not registered')
+        if(domain_info['owner'] != sender):
+            raise Exception('The address provided is not the domain owner')
         Grp_txns_unsign = []
 
         reg_app_id = constants.APP_ID
@@ -133,6 +156,16 @@ class Transactions:
 
     def prepare_initiate_name_transfer_transaction(self, domainname, sender, recipient_addr, tnsfr_price):
 
+        domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
+        validation.is_valid_name(domainname)
+        validation.is_valid_address(sender)
+        validation.is_valid_address(recipient_addr)
+        domain_info = self.resolver_obj.resolve_name(domainname)
+        if(domain_info['found'] is not True):
+            raise Exception('The domain is not registered')
+        if(domain_info['owner'] != sender):
+            raise Exception('The address provided is not the domain owner')
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
         txn_args = [
@@ -145,6 +178,16 @@ class Transactions:
 
     def prepare_accept_name_transfer_transactions(self, domainname, sender, recipient_addr, tnsfr_price):
 
+        domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
+        validation.is_valid_name(domainname)
+        validation.is_valid_address(sender)
+        validation.is_valid_address(recipient_addr)
+        domain_info = self.resolver_obj.resolve_name(domainname)
+        if(domain_info['found'] is not True):
+            raise Exception('The domain is not registered')
+        if(domain_info['owner'] != recipient_addr):
+            raise Exception('The address provided is not the domain owner')
         reg_app_id = constants.APP_ID
         algod_client = self.algod_client
         # Prepare group txn array   
