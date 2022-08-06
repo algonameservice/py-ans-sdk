@@ -159,6 +159,68 @@ except:
     pass
 ```
 
+## Update value
+Value property is set by the owner of a domain if they wish to have their domain resolved to a different account.
+Only the owner address can authorize any transactions on their domain
+
+Get the transactions to update the value property associated with a .algo name
+
+```
+try:
+
+    name = "" # .algo name
+    owner = "" # owner address
+    value = "" # value property as defined above
+
+    name_renewal_txns =  sdk.name(name).set_value(owner, value)
+
+    # Returns a transaction 
+    # Sign and send to network
+
+except:
+    pass
+```
+
+## Set default account
+Default domain, if set by the user, will be displayed instead of wallet addresses in ANS and services that have integrated ANS.
+
+Get the transactions to update the default domain associated with a .algo name
+
+```
+try:
+
+    name = "" # .algo name
+    owner = "" # owner address
+    
+    name_renewal_txns =  sdk.name(name).set_default_domain(owner)
+
+    # Returns a transaction 
+    # Sign and send to network
+
+except:
+    pass
+```
+
+## Delete property
+Properties set by the domain owner (socials and hosting information) can be deleted by the owner
+
+Get the transactions to delete a property associated with a .algo name
+```
+try:
+
+    name = "" # .algo name
+    owner = "" # owner address
+    property = "" # property as defined above
+
+    name_renewal_txns =  sdk.name(name).delete_property(owner, property)
+
+    # Returns a transaction 
+    # Sign and send to network
+
+except:
+    pass
+```
+
 ## Initiate transfer
 This method returns a transaction to initiate name transfer. The owner is required to set the price for transfer and the recipient's algorand account address.
 
