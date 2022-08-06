@@ -66,8 +66,29 @@ class Name:
         info = self.resolver_obj.resolve_name(self.name)
         if(info['found'] is not True):
             raise Exception('Domain {domain} is not registered'.format(domain = self.name))
-        
+
         return self.transactions_obj.prepare_name_renewal_transactions(self.name, address, period)
+
+    def set_value(self, address, value):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is not True):
+            raise Exception('Domain {domain} is not registered'.format(domain = self.name))
+
+        return self.transactions_obj.prepare_update_value_txn(self.name, address, value)
+
+    def set_default_domain(self, address):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is not True):
+            raise Exception('Domain {domain} is not registered'.format(domain = self.name))
+
+        return self.transactions_obj.prepare_set_default_domain_txn(self.name, address)
+
+    def delete_property(self, address, property):
+        info = self.resolver_obj.resolve_name(self.name)
+        if(info['found'] is not True):
+            raise Exception('Domain {domain} is not registered'.format(domain = self.name))
+
+        return self.transactions_obj.prepare_delete_property_txn(self.name, address, property)
 
     def init_transfer(self, owner, new_owner, price):
         info = self.resolver_obj.resolve_name(self.name)

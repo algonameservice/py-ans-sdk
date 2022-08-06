@@ -61,9 +61,8 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
     def test_name_resolution_get_expiry(self):
     
         expiry = self.sdk.name('ans.algo').get_expiry()
-        self.assertEqual(expiry, datetime.datetime(2023, 2, 25, 21, 58, 50))
-
-    
+        self.assertIsNotNone(expiry)
+            
     def test_names_owned_by_address(self):
         names = self.sdk.address('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU').get_names(socials=True, limit=2)
         
@@ -95,6 +94,21 @@ class TestDotAlgoNameRegistry(unittest.TestCase):
 
         name_renew_txns = self.sdk.name('ans.algo').renew('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', 2)
         self.assertEqual(len(name_renew_txns), 2)
+
+    def test_update_value(self):
+
+        update_value_txn = self.sdk.name('ans.algo').set_value('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE')
+        self.assertIsNotNone(update_value_txn)
+
+    def test_set_default_domain(self):
+
+        set_default_domain_txn = self.sdk.name('ans.algo').set_default_domain('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU')
+        self.assertIsNotNone(set_default_domain_txn)
+
+    def test_delete_property(self):
+
+        delete_property_txn = self.sdk.name('ans.algo').delete_property('PD2CGHFAZZQNYBRPZH7HNTA275K3FKZPENRSUXWZHBIVNPHVDFHLNIUSXU', 'discord')
+        self.assertIsNotNone(delete_property_txn)
 
     
     def test_prep_initiate_name_transfer_txn(self):

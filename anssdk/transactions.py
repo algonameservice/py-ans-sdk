@@ -1,7 +1,6 @@
 
 from xml import dom
 from algosdk import encoding
-from click import edit
 from pyteal import compileTeal, Mode
 from algosdk.future.transaction import LogicSig
 from algosdk import logic
@@ -37,8 +36,8 @@ class Transactions:
         elif(len(name)==4):
             return 50000000
         else:
-            return 5000000        
-
+            return 5000000
+        
     def prepare_name_registration_transactions(self,name, sender, validity):
 
         name = name.split('.algo')[0]
@@ -152,7 +151,63 @@ class Transactions:
         Grp_txns_unsign.append(renew_name_txn)
         transaction.assign_group_id(Grp_txns_unsign)
 
-        return Grp_txns_unsign        
+        return Grp_txns_unsign
+
+    def prepare_update_value_txn(self, domainname, sender, value):
+        domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
+        validation.is_valid_name(domainname)
+        validation.is_valid_address(sender)
+        domain_info = self.resolver_obj.resolve_name(domainname)
+        if(domain_info['found'] is not True):
+            raise Exception('The domain is not registered')
+        if(domain_info['owner'] != sender):
+            raise Exception('The address provided is not the domain owner')
+
+        txn_args = [
+            "update_resolver_account".encode("utf-8")
+        ]
+
+        lsig = self.prep_name_record_logic_sig(domainname, constants.APP_ID)
+        return transaction.ApplicationNoOpTxn(sender, self.algod_client.suggested_params(), constants.APP_ID, txn_args, [lsig.address(), value])
+
+    def prepare_set_default_domain_txn(self, domainname, sender):
+        domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
+        validation.is_valid_name(domainname)
+        validation.is_valid_address(sender)
+        domain_info = self.resolver_obj.resolve_name(domainname)
+        if(domain_info['found'] is not True):
+            raise Exception('The domain is not registered')
+        if(domain_info['owner'] != sender):
+            raise Exception('The address provided is not the domain owner')
+
+        txn_args = [
+            "set_default_account".encode("utf-8")
+        ]
+
+        lsig = self.prep_name_record_logic_sig(domainname, constants.APP_ID)
+        return transaction.ApplicationNoOpTxn(sender, self.algod_client.suggested_params(), constants.APP_ID, txn_args, [lsig.address()])
+
+    def prepare_delete_property_txn(self, domainname, sender, property):
+        domainname = domainname.split('.algo')[0]
+        domainname = domainname.lower()
+        validation.is_valid_name(domainname)
+        validation.is_valid_address(sender)
+        domain_info = self.resolver_obj.resolve_name(domainname)
+        if(domain_info['found'] is not True):
+            raise Exception('The domain is not registered')
+        if(domain_info['owner'] != sender):
+            raise Exception('The address provided is not the domain owner')
+
+        txn_args = [
+            "remove_property".encode("utf-8"),
+            property.encode("utf-8")
+        ]
+
+        lsig = self.prep_name_record_logic_sig(domainname, constants.APP_ID)
+        return transaction.ApplicationNoOpTxn(sender, self.algod_client.suggested_params(), constants.APP_ID, txn_args, [lsig.address()])
+
 
     def prepare_initiate_name_transfer_transaction(self, domainname, sender, recipient_addr, tnsfr_price):
 

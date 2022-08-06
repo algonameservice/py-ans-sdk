@@ -22,28 +22,18 @@ import base64
 import datetime,time
 
 def SetupClient():
-    api_key = ""
-    with open('api_key.txt', 'r') as f:
-        api_key = f.readlines()[0]
-
-    # Purestake conn
-    algod_address = "https://mainnet-algorand.api.purestake.io/ps2"
-    headers = {
-    "X-API-Key": api_key
-    }
     
-    algod_client=algod.AlgodClient(api_key, algod_address, headers=headers)
+    # Purestake conn
+    algod_address = "https://mainnet-api.algonode.cloud"
+    
+    algod_client=algod.AlgodClient("", algod_address)
     return algod_client
 
 def SetupIndexer():
-    api_key = ""
-    with open('api_key.txt', 'r') as f:
-        api_key = f.readlines()[0]
+    
 
-    algod_address = "https://mainnet-algorand.api.purestake.io/idx2"
-    headers = {
-        'X-API-key' : api_key,
-    }
-    algod_indexer=indexer.IndexerClient("", algod_address, headers)
+    algod_address = "https://mainnet-idx.algonode.cloud"
+    
+    algod_indexer=indexer.IndexerClient("", algod_address)
     
     return algod_indexer
